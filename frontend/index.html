@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dbee Studio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🐝 Dbee Studio</h1>
+            </div>
+            
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" onclick="app.showNewConnectionModal()">+ New Connection</button>
+            </div>
+            
+            <div class="connections-list" id="connectionsList">
+                <p class="empty-state">No connections yet</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <h2 id="currentDbName">Select a connection</h2>
+                </div>
+                <div class="top-bar-right">
+                    <button class="btn btn-sm" onclick="app.refreshSchema()">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Explorer Panel -->
+                <div class="explorer-panel">
+                    <div class="panel-header">
+                        <h3>Schema Explorer</h3>
+                    </div>
+                    <div class="schema-tree" id="schemaTree">
+                        <p class="empty-state">Select a connection to explore schema</p>
+                    </div>
+                </div>
+                
+                <!-- Query Editor Panel -->
+                <div class="editor-panel">
+                    <div class="panel-tabs">
+                        <button class="tab-btn active" data-tab="editor">Query Editor</button>
+                        <button class="tab-btn" data-tab="results">Results</button>
+                    </div>
+                    
+                    <!-- Editor Tab -->
+                    <div class="tab-content active" id="editor-tab">
+                        <textarea id="queryEditor" class="query-editor" placeholder="SELECT * FROM your_table;"></textarea>
+                        <div class="editor-actions">
+                            <button class="btn btn-primary" onclick="app.executeQuery()">▶ Execute</button>
+                            <button class="btn" onclick="app.clearQuery()">Clear</button>
+                            <button class="btn" onclick="app.exportResults('csv')">📥 Export CSV</button>
+                            <button class="btn" onclick="app.exportResults('json')">📥 Export JSON</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results Tab -->
+                    <div class="tab-content" id="results-tab">
+                        <div class="results-header" id="resultsHeader"></div>
+                        <div class="results-container" id="resultsContainer">
+                            <p class="empty-state">Run a query to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- New Connection Modal -->
+    <div class="modal" id="newConnectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>New Database Connection</h3>
+                <button class="modal-close" onclick="app.closeModal()">×</button>
+            </div>
+            
+            <form id="connectionForm" onsubmit="app.createConnection(event)">
+                <div class="form-group">
+                    <label for="connName">Connection Name</label>
+                    <input type="text" id="connName" placeholder="My Database" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="connType">Database Type</label>
+                    <select id="connType" onchange="app.updateFormFields()" required>
+                        <option value="">Select...</option>
+                        <option value="postgresql">PostgreSQL</option>
+                        <option value="mysql">MySQL</option>
+                        <option value="sqlite">SQLite</option>
+                        <option value="mongodb">MongoDB</option>
+                    </select>
+                </div>
+                
+                <!-- SQL Connection Fields -->
+                <div id="sqlFields">
+                    <div class="form-group">
+                        <label for="connHost">Host</label>
+                        <input type="text" id="connHost" placeholder="localhost">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connPort">Port</label>
+                        <input type="number" id="connPort" placeholder="5432">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connUser">Username</label>
+                        <input type="text" id="connUser" placeholder="postgres">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connPassword">Password</label>
+                        <input type="password" id="connPassword">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="connDatabase">Database</label>
+                        <input type="text" id="connDatabase" placeholder="mydatabase">
+                    </div>
+                </div>
+                
+                <!-- SQLite Path -->
+                <div id="sqliteFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="sqlitePath">File Path</label>
+                        <input type="text" id="sqlitePath" placeholder="/path/to/database.db">
+                    </div>
+                </div>
+                
+                <!-- MongoDB URI -->
+                <div id="mongoFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="mongoUri">Connection URI</label>
+                        <input type="text" id="mongoUri" placeholder="mongodb://localhost:27017">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="app.closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="app.testConnection()">Test Connection</button>
+                    <button type="submit" class="btn btn-success">Create Connection</button>
+                </div>
+            </form>
+            
+            <div id="connectionStatus" class="connection-status"></div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
